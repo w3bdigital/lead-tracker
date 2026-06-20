@@ -21,10 +21,10 @@ O serviço precisa de 2 variáveis de ambiente:
 
 ### Deploy no Easypanel
 1. No **mesmo projeto** onde está o Redis, clique em **+ Serviço** > **App**.
-2. **Source**: GitHub > repositório `w3bdigital/LeadsGoogleMaps` > branch `main`.
-   - Em **Path** (caminho de build), informe `/tracker` (a subpasta deste serviço).
-   - Se o Easypanel ainda não tem acesso ao seu GitHub, conecte a conta primeiro.
-3. **Build**: deixe **Dockerfile** (ele detecta o `tracker/Dockerfile`).
+2. **Source**: GitHub > repositório `w3bdigital/lead-tracker` (público) > branch `main`.
+   - **Caminho de Build**: `/` (raiz — o Dockerfile está na raiz deste repo).
+   - Repo público: não precisa de token do GitHub.
+3. **Build**: deixe **Dockerfile** (ele detecta o `Dockerfile`).
 4. **Environment**: adicione `REDIS_URL` e `TRACKER_SECRET`.
 5. **Domains**: adicione um subdomínio (ex: `tracker.seudominio.com`) apontando
    para a **porta 3000**. O Easypanel cuida do HTTPS.
