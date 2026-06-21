@@ -51,19 +51,22 @@ async function recordOpen(id, req, type) {
   await redis.zremrangebyrank("events", 0, -5001).catch(() => {});
 }
 
-// link rastreavel -> registra e redireciona pra demo real
-app.get("/d/:id", async (req, res) => {
+// handler do link rastreavel: registra a abertura e redireciona pra demo real
+async function redirectHandler(req, res) {
   const id = req.params.id;
   let url = null;
   try {
     url = await redis.get(`map:${id}`);
     if (!isBot(req.headers["user-agent"] || "")) await recordOpen(id, req, "click");
   } catch (e) {
-    console.error("[d]", e.message);
+    console.error("[redirect]", e.message);
   }
   if (url) res.redirect(302, url);
   else res.status(404).send("Demo nao encontrada.");
-});
+}
+
+// link rastreavel "antigo": /d/<id> (mantido por compatibilidade)
+app.get("/d/:id", redirectHandler);
 
 // pixel da landing
 app.get("/t/:id", async (req, res) => {
@@ -116,5 +119,13 @@ app.get("/api/events", async (req, res) => {
 });
 
 app.get("/health", (_req, res) => res.json({ ok: true }));
+
+// atalho na raiz: /<empresa> (link curto e bonito p/ enviar ao dono)
+// fica POR ULTIMO para nao capturar /health, /api/*, /t/*, /d/*
+const RESERVED = new Set(["favicon.ico", "robots.txt", "health", "api", "d", "t", ""]);
+app.get("/:id", (req, res) => {
+  if (RESERVED.has(req.params.id)) return res.status(404).end();
+  return redirectHandler(req, res);
+});
 
 app.listen(PORT, () => console.log(`lead-tracker ouvindo na porta ${PORT}`));
